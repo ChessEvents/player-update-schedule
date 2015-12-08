@@ -27,11 +27,14 @@ var parser = new xml2js.Parser();
 var playerSchema = mongoose.Schema({
     fideId: String,
     name: String,
-    rating: String,
-    title: String
+    title: String,
+    rating: String
 });
 
 var Player = mongoose.model('Player', playerSchema);
+
+var list = [];
+var counter =
 
 fs.readFile( './data/player-data-all.xml', function ( err, data ) {
 
@@ -39,18 +42,43 @@ fs.readFile( './data/player-data-all.xml', function ( err, data ) {
 
     for(var i = 0; i < result.playerslist.player.length; i++) {
 
-      var item = result.playerslist.player[i];
+      var item = {
+        fideid: result.playerslist.player[i]
+      };
 
-      var player = new Player({
-        fideId: item.fideid[0],
-        name: item.name[0],
-        title: item.title[0],
-        rating: parseInt(item.rating[0], 10)
-      });
-      player.save();
-      console.log('new player added! ' + player.name);
+      list.push(item);
     }
     console.log('Done.');
+    addPlayers();
   });
 
 });
+
+function addPlayers() {
+
+// don't try this at home:
+//  Player.create(list);
+
+  for(var i = 0; i < list.length; i++) {
+    console.log(list[i].name.toString());
+    //savePlayer(list[i]);
+  }
+}
+
+
+function savePlayer(p) {
+
+  var player = new Player({
+    fideId: p.fideid[0].toString(),
+    name: p.name[0].toString(),
+    title: p.title[0].toString(),
+    rating: parseInt(p.rating[0], 10).toString()
+  });
+
+  player.save(function (err, player) {
+    if(err){
+      return console.error(err);
+    }
+  });
+
+}
